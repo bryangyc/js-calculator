@@ -13,6 +13,7 @@ const number = document.querySelectorAll('.button > .number');
 const operators = document.querySelectorAll('.button > .operator');
 const clear = document.querySelector('.button > .clear');
 const output = document.querySelector('.calculator > .textOutput');
+const decimal = document.querySelector('#decimal');
 
 let displayValue = "0";
 output.textContent = displayValue;
@@ -20,21 +21,20 @@ output.textContent = displayValue;
 let firstNum = "";
 let secondNum = "";
 let operator = "";
+let temp = "";
 
 
 number.forEach(num => {
     num.addEventListener('click', (e) => {
         if (operator === "") { // Read the first number
             firstNum += e.target.value;
-            // console.log(firstNum);
-            displayValue = firstNum;
-            output.textContent = displayValue;
-
+            output.textContent = firstNum;
         } else {
             secondNum += e.target.value;
-            // console.log(secondNum);
-            displayValue += secondNum;
-            output.textContent = displayValue;
+            output.textContent = secondNum;
+        }
+        if (e.target.value === '.') {
+            decimal.disabled = true;
         }
     })
 });
@@ -42,22 +42,24 @@ number.forEach(num => {
 operators.forEach(op => {
     op.addEventListener('click', e => {
         if (e.target.value !== "=") {
+            if (secondNum !== "") {
+                firstNum = operate(firstNum, operator, secondNum);
+                output.textContent = firstNum;
+                secondNum = "";
+            }
             operator = e.target.value;
-            displayValue += operator
-            output.textContent = displayValue;
-            // console.log(firstNum);
-            // console.log(operator);
+            decimal.disabled = false;
         } else {
-            // console.log(secondNum);
             displayValue = operate(firstNum, operator, secondNum);
-            output.textContent = displayValue;
+            if (displayValue === NaN || displayValue === Infinity) {
+                output.textContent = "INVALID"
+            } else {
+                output.textContent = Math.round(displayValue * 100) / 100;
+            }
         }
-        // console.log(operator);
 
     })
 })
-
-// output.value = displayValue;
 
 // Add the clear button
 clear.addEventListener('click', (e) => {
@@ -73,7 +75,6 @@ clear.addEventListener('click', (e) => {
 // The main operation
 function operate(a, b, c) {
     a = Number(a)
-    // b = Number(b)
     c = Number(c)
 
     switch (b) {
